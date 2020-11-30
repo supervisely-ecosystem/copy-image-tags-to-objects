@@ -1,0 +1,54 @@
+<div>
+    <sly-field title="Path to CSV file"
+               description="Upload CSV to team files, copy its path (use 'File Context Menu' -> 'Copy Path' button),
+               and paste it here">
+<!--        <sly-icon slot="icon" :options="{ color: '#ceadff', bgColor: '#f6ebff', rounded: false }">-->
+<!--            <i class="zmdi zmdi-file-text"></i>-->
+<!--        </sly-icon>-->
+        <el-input placeholder="Please input path to CSV file" v-model="state.csvPath"></el-input>
+    </sly-field>
+    <sly-field title="Image tag name"
+               description="Define the name of tag that will be used for matching with CSV column">
+<!--        <sly-icon slot="icon" :options="{ color: '#2cd26e', bgColor: '#d8f8e7', rounded: false }">-->
+<!--            <i class="zmdi zmdi-tag"></i>-->
+<!--        </sly-icon>-->
+        <el-input placeholder="Please input tag name" v-model="state.tagName"></el-input>
+    </sly-field>
+    <sly-field title="CSV column name"
+               description="Define the name of column in CSV file that will be used for matching with image tag">
+<!--        <sly-icon slot="icon" :options="{ color: '#2cd26e', bgColor: '#d8f8e7', rounded: false }">-->
+<!--            <i class="zmdi zmdi-file-text"></i>-->
+<!--        </sly-icon>-->
+        <el-input placeholder="Please input CSV column name" v-model="state.columnName"></el-input>
+    </sly-field>
+    <sly-field title="How to assign new properties from CSV row to image"
+               description="assign as tags or metadata">
+<!--        <sly-icon slot="icon" :options="{ color: '#ceadff', bgColor: '#f6ebff', rounded: false }">-->
+<!--            <i class="zmdi zmdi-plus-circle"></i>-->
+<!--        </sly-icon>-->
+        <el-select v-model="state.assignAs">
+            <el-option key="metadata" label="as metadata" value="metadata"></el-option>
+            <el-option key="tags" label="as tags" value="tags"></el-option>
+        </el-select>
+    </sly-field>
+    <sly-field title="How to resolve conflicts if image already has same property"
+               description="skip / replace / raise error">
+<!--        <sly-icon slot="icon" :options="{ color: '#ea9d22', bgColor: '#fcefd9', rounded: false }">-->
+<!--            <i class="zmdi zmdi-alert-triangle"></i>-->
+<!--        </sly-icon>-->
+        <el-select v-model="state.resolve">
+            <el-option key="skip" label="skip image" value="skip"></el-option>
+            <el-option key="replace" label="replace property" value="replace"></el-option>
+            <el-option key="raise" label="raise error and stop app" value="raise"></el-option>
+        </el-select>
+    </sly-field>
+    <sly-field title="Result project name"
+               description="New project is created, original project won't be changed.
+               Remove original project manually after operation if you want. Keep field empty to auto-generate name:
+               '<original name>' + suffix ('_001', '_002', etc...)">
+<!--        <sly-icon slot="icon" :options="{ color: '#2cd26e', bgColor: '#d8f8e7', rounded: false }">-->
+<!--            <i class="zmdi zmdi-collection-folder-image"></i>-->
+<!--        </sly-icon>-->
+        <el-input placeholder="Please input result project name" v-model="state.resultProjectName"></el-input>
+    </sly-field>
+</div>

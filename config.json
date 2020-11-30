@@ -1,0 +1,19 @@
+{
+  "name": "Copy image tags to objects",
+  "type": "app",
+  "categories": [
+    "tag"
+  ],
+  "description": "",
+  "docker_image": "supervisely/base-py-sdk:6",
+  "main_script": "src/main.py",
+  "gui_template": "src/gui.html",
+  "task_location": "workspace_tasks",
+  "icon": "https://i.imgur.com/bi0gqDJ.png",
+  "icon_background": "#FFFFFF",
+  "headless": true,
+  "disable_stop": true,
+  "context_menu": {
+    "target": ["images_project"]
+  }
+}
