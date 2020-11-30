@@ -45,19 +45,4 @@
         </div>
     </sly-card>
 
-    <sly-card style="margin-top: 15px;"
-              title="Choose classes"
-              subtitle="Tags will be assigned only to objects of selected classes">
-        <div style="overflow: scroll; max-height: 300px">
-            <div v-for="(item,index) in data.tags" :key="index">
-                <el-checkbox class="mt5"
-                             v-model="state.classesSelected[index]"
-                             :disabled="state.classesDisabled[index]">
-                    <i class="zmdi zmdi-tag mr5" :style="{ color: item.color }"></i> {{item.name}}
-                    <span v-if="item.applicable_type !== 'all'">(applicable to {{item.applicable_type}})</span>
-                </el-checkbox>
-            </div>
-        </div>
-    </sly-card>
-
 </div>
