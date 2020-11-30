@@ -1,3 +1,48 @@
 <div>
+    <el-row :gutter="10" type="flex">
+        <el-col :span="12">
+            <sly-card title="Input">
+                <sly-field title="" description="Project">
+                    <a slot="title" target="_blank"
+                       :href="`/projects/${data.projectId}/datasets`">{{data.projectName}}</a>
+                    <sly-icon slot="icon" :options="{ imageUrl: `${data.projectPreviewUrl}` }"/>
+                </sly-field>
+            </sly-card>
+        </el-col>
+        <el-col :span="16" style="flex: 1">
+            <sly-card title="Output" style="height: 100%">
+                <sly-field v-if="data.progress === 100" title=""
+                           description="New project has been successfully created">
+                    <a slot="title" target="_blank" :href="`/projects/${data.resultProjectId}/datasets`">{{data.resultProject}}</a>
+                    <sly-icon slot="icon" :options="{ imageUrl: `${data.resultProjectPreviewUrl}` }"/>
+                </sly-field>
+                <div v-if="data.started === true && data.progress !== 100">
+                    <div>{{data.progressCurrent}} / {{data.progressTotal}}</div>
+                    <el-progress :percentage="data.progress"></el-progress>
+                </div>
+
+                <el-button :disabled="data.finished === true" type="primary"
+                           @click="command('copy_tags')" v-if="data.started === false">
+                    <i class="zmdi zmdi-play" style="margin-right: 5px"></i> Run
+                </el-button>
+            </sly-card>
+        </el-col>
+    </el-row>
+
+    <sly-card style="margin-top: 15px;"
+              title="Choose tags"
+              subtitle="Choose tags that should be copied to objects. Tag is disabled if it is applicable only to
+                           images (such tags can not be copied to objects)">
+        <div style="overflow: scroll; max-height: 300px">
+            <div v-for="(item,index) in data.tags" :key="index">
+                <el-checkbox class="mt5"
+                             v-model="state.tagsSelected[index]"
+                             :disabled="state.tagsDisabled[index]">
+                    <i class="zmdi zmdi-tag mr5" :style="{ color: item.color }"></i> {{item.name}}
+                    <span v-if="item.applicable_type !== 'all'">(applicable to {{item.applicable_type}})</span>
+                </el-checkbox>
+            </div>
+        </div>
+    </sly-card>
 
 </div>

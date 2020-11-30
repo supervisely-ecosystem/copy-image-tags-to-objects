@@ -1,12 +1,16 @@
 import os
-import csv
 import supervisely_lib as sly
+from supervisely_lib.annotation.tag_meta import TagApplicableTo
 
 my_app = sly.AppService()
 
 TEAM_ID = int(os.environ['context.teamId'])
 WORKSPACE_ID = int(os.environ['context.workspaceId'])
 PROJECT_ID = int(os.environ["modal.state.slyProjectId"])
+
+PROJECT = None
+RES_PROJECT = None
+META: sly.ProjectMeta = None
 
 
 @my_app.callback("generate")
@@ -24,12 +28,46 @@ def preprocessing(api: sly.Api, task_id, context, state, app_logger):
 
 
 def main():
+    global PROJECT, META
+
+    api = sly.Api.from_env()
+    PROJECT = api.project.get_info_by_id(PROJECT_ID)
+    META = sly.ProjectMeta.from_json(api.project.get_meta(PROJECT_ID))
+
+    tags = []
+    tags_selected = []
+    tags_disabled = []
+    disabled_message = []
+    for tag_meta in META.tag_metas:
+        tag_meta: sly.TagMeta
+        cur_json = tag_meta.to_json()
+        tags.append(cur_json)
+        if tag_meta.applicable_to == TagApplicableTo.ALL:
+            tags_selected.append(True)
+            tags_disabled.append(False)
+            disabled_message.append("")
+        elif tag_meta.applicable_to == TagApplicableTo.IMAGES_ONLY:
+            tags_selected.append(False)
+            tags_disabled.append(True)
+            disabled_message.append("Tag is applicable only to images")
+        elif tag_meta.applicable_to == TagApplicableTo.OBJECTS_ONLY:
+            tags_selected.append(False)
+            tags_disabled.append(True)
+            disabled_message.append("There are no images with this tag (it is applicable only to objects)")
+
     data = {
-        "randomString": "hello!"
+        "projectId": PROJECT.id,
+        "projectName": PROJECT.name,
+        "projectPreviewUrl": api.image.preview_url(PROJECT.reference_image_url, 100, 100),
+        "tags": tags,
+        "disabledMessage": disabled_message,
+        "resultProjectId": "",
+        "resultProjectPreviewUrl": "",
     }
 
     state = {
-        "prefix": "abc_"
+        "tagsSelected": tags_selected,
+        "tagsDisabled": tags_disabled,
     }
 
     # Run application service
