@@ -49,18 +49,16 @@ def main():
         elif tag_meta.applicable_to == TagApplicableTo.IMAGES_ONLY:
             tags_selected.append(False)
             tags_disabled.append(True)
-            disabled_message.append("Tag is applicable only to images")
         elif tag_meta.applicable_to == TagApplicableTo.OBJECTS_ONLY:
             tags_selected.append(False)
             tags_disabled.append(True)
-            disabled_message.append("There are no images with this tag (it is applicable only to objects)")
 
     data = {
         "projectId": PROJECT.id,
         "projectName": PROJECT.name,
         "projectPreviewUrl": api.image.preview_url(PROJECT.reference_image_url, 100, 100),
         "tags": tags,
-        "disabledMessage": disabled_message,
+        "classes": [],
         "resultProjectId": "",
         "resultProjectPreviewUrl": "",
     }
