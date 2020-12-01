@@ -31,3 +31,9 @@ This app copies selected tags to objects of selected classes (by default all cla
 7. App shuts down automatically
 
 <img src="https://i.imgur.com/jBVHcxj.png"/>
+
+## How To Run
+
+1. Add app to your team if it is not there
+2. Run this app from the context menu of project: `Run App` -> `Copy image tags to objects`
+
