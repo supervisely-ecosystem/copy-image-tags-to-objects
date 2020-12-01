@@ -14,26 +14,62 @@ META: sly.ProjectMeta = None
 UI_TAGS = None
 UI_CLASSES = None
 
+
+def add_tags_to_label(label: sly.Label, allowed_tags: set, image_tags: sly.TagCollection, resolve: str):
+    new_tags = []
+    for tag in image_tags:
+        tag: sly.Tag
+        if tag.name not in allowed_tags:
+            continue
+        else:
+            existing_tag = label.tags.get(tag.name)
+            if existing_tag is None:
+                new_tags.append(tag)
+            else:
+                if resolve == "skip":
+                    new_tags.append(existing_tag)
+                elif resolve == "replace":
+                    new_tags.append(tag)
+                elif resolve == "raise error":
+                    raise RuntimeError("Object already has tag {!r}".format(tag.name))
+
+    for tag in label.tags:
+        if tag.name not in allowed_tags:
+            new_tags.append(tag)
+
+    return label.clone(tags=sly.TagCollection(new_tags))
+
+
 @my_app.callback("copy_tags")
 @sly.timeit
-def preprocessing(api: sly.Api, task_id, context, state, app_logger):
+def copy_tags(api: sly.Api, task_id, context, state, app_logger):
     global RES_PROJECT
-    RES_PROJECT = api.project.create(WORKSPACE_ID, state["resultProjectName"], change_name_if_conflict=True)
-    my_app.logger.info("Result Project is created (name={!r}; id={})".format(RES_PROJECT.name, RES_PROJECT.id))
+    selected_tags = state["tagsSelected"].copy()
+    selected_classes = state["classesSelected"].copy()
 
-    api.project.update_meta(RES_PROJECT.id, RES_META.to_json())
+    fields = [
+        {"field": "state.tagsSelected", "payload": [False] * len(selected_tags)},
+        {"field": "data.classesSelected", "payload": [False] * len(selected_classes)},
+        {"field": "data.started", "payload": True}
+    ]
+    api.task.set_fields(task_id, fields)
+
+    RES_PROJECT = api.project.create(WORKSPACE_ID, state["resultProjectName"], change_name_if_conflict=True)
+    app_logger.info("Result Project is created (name={!r}; id={})".format(RES_PROJECT.name, RES_PROJECT.id))
+
+    api.project.update_meta(RES_PROJECT.id, META.to_json())
 
     allowed_tags = set()
-    for tag, allowed in zip(UI_TAGS, state["tagsSelected"]):
+    for tag, allowed in zip(UI_TAGS, selected_tags):
         if allowed:
             allowed_tags.add(tag["name"])
 
     allowed_classes = set()
-    for obj_class, allowed in zip(UI_CLASSES, state["classesSelected"]):
+    for obj_class, allowed in zip(UI_CLASSES, selected_classes):
         if allowed:
             allowed_classes.add(obj_class["title"])
 
-    progress = sly.Progress("Processing", PROJECT.images_count, ext_logger=my_app.logger)
+    progress = sly.Progress("Processing", PROJECT.images_count, ext_logger=app_logger)
     for dataset in api.dataset.get_list(PROJECT.id):
         res_dataset = api.dataset.create(RES_PROJECT.id, dataset.name)
         ds_images = api.image.get_list(dataset.id)
@@ -45,46 +81,41 @@ def preprocessing(api: sly.Api, task_id, context, state, app_logger):
             ann_infos = api.annotation.download_batch(dataset.id, image_ids)
             anns = [sly.Annotation.from_json(ann_info.annotation, META) for ann_info in ann_infos]
 
-            original_ids = []
-            res_image_names = []
             res_anns = []
-            res_metas = []
+            for ann in anns:
+                new_labels = []
+                for label in ann.labels:
+                    if label.obj_class.name not in allowed_classes:
+                        new_labels.append(label.clone())
+                    else:
+                        new_labels.append(add_tags_to_label(label, allowed_tags, ann.img_tags, state["resolve"]))
+                res_anns.append(ann.clone(labels=new_labels))
 
-            for image_id, image_name, image_meta, ann in zip(image_ids, image_names, image_metas, anns):
-                tag: sly.Tag = ann.img_tags.get(IMAGE_TAG_NAME)
-                if tag is None:
-                    my_app.logger.warn("Image {!r} in dataset {!r} doesn't have tag {!r}. Image is skipped"
-                                       .format(image_name, dataset.name, IMAGE_TAG_NAME))
-                    progress.iter_done_report()
-                    continue
-
-                csv_row = CSV_INDEX.get(str(tag.value), None)
-                if csv_row is None:
-                    my_app.logger.warn(
-                        "Match not found (id={}, name={!r}, dataset={!r}, tag_value={!r}). Image is skipped"
-                        .format(image_id, image_name, dataset.name, str(tag.value)))
-                    progress.iter_done_report()
-                    continue
-
-                res_ann = ann.clone()
-                res_meta = image_meta.copy()
-
-                if ASSIGN_AS == "tags":
-                    res_ann = assign_csv_row_as_tags(image_id, image_name, res_ann, csv_row)
-                else:  # metadata
-                    res_meta = assign_csv_row_as_metadata(image_id, image_name, image_meta, csv_row)
-
-                original_ids.append(image_id)
-                res_image_names.append(image_name)
-                res_anns.append(res_ann)
-                res_metas.append(res_meta)
-
-            res_image_infos = api.image.upload_ids(res_dataset.id, res_image_names, original_ids, metas=res_metas)
+            res_image_infos = api.image.upload_ids(res_dataset.id, image_names, image_ids, metas=image_metas)
             res_image_ids = [image_info.id for image_info in res_image_infos]
             api.annotation.upload_anns(res_image_ids, res_anns)
+
             progress.iters_done_report(len(res_image_ids))
+            fields = [
+                {"field": "data.progress", "payload": int(progress.current * 100 / PROJECT.images_count)},
+                {"field": "data.progressCurrent", "payload": progress.current}
+            ]
+            api.task.set_fields(task_id, fields)
 
     api.task.set_output_project(my_app.task_id, RES_PROJECT.id, RES_PROJECT.name)
+
+    # to get correct "reference_image_url"
+    res_project = api.project.get_info_by_id(RES_PROJECT.id)
+    fields = [
+        {"field": "data.resultProject", "payload": RES_PROJECT.name},
+        {"field": "data.resultProjectId", "payload": RES_PROJECT.id},
+        {"field": "data.resultProjectPreviewUrl",
+         "payload": api.image.preview_url(res_project.reference_image_url, 100, 100)},
+        #{"field": "data.started", "payload": False},
+        {"field": "data.finished", "payload": False},
+    ]
+    api.task.set_fields(task_id, fields)
+    my_app.stop()
 
 
 def prepare_ui_tags():
@@ -148,7 +179,9 @@ def main():
         "resultProjectPreviewUrl": "",
         "started": False,
         "finished": False,
-        "progress": 0
+        "progress": 0,
+        "progressCurrent": 0,
+        "progressTotal": PROJECT.images_count
     }
 
     state = {

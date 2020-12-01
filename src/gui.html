@@ -32,13 +32,13 @@
     <sly-card style="margin-top: 15px;"
               title="Settings"
               subtitle="choose the result project name and how tags conflicts have to be resolved">
-        <sly-field v-if="data.started === false" title="Result project name"
+        <sly-field title="Result project name"
                    description="New project is created, if you want to avoid duplicates, remove original
                                     project after app finishes">
             <sly-icon slot="icon" :options="{ color: '#ceadff', bgColor: '#f6ebff', rounded: false }">
                 <i class="zmdi zmdi-collection-folder-image"></i>
             </sly-icon>
-            <el-input :disabled="data.finished"
+            <el-input :disabled="data.started"
                       placeholder="Please input project name"
                       v-model="state.resultProjectName"
             ></el-input>
@@ -47,7 +47,7 @@
             <sly-icon slot="icon" :options="{ color: '#ea9d22', bgColor: '#fcefd9', rounded: false }">
                 <i class="zmdi zmdi-alert-triangle"></i>
             </sly-icon>
-            <el-select v-model="state.resolve" placeholder="Select">
+            <el-select v-model="state.resolve" :disabled="data.started" placeholder="Select">
                 <el-option key="skip" label="skip" value="skip"></el-option>
                 <el-option key="replace" label="replace" value="replace"></el-option>
                 <el-option key="raise error" label="raise error" value="raise error"></el-option>
