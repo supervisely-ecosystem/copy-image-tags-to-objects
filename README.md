@@ -20,8 +20,14 @@
 
 ## Overview
 
-Application allows
+This app copies selected tags to objects of selected classes (by default all classes and tags are selected). New project is created. 
 
-# copy-image-tags-to-objects
+1. Inpur project info
+2. Define the name of result project
+3. Choose how to resolve conflicts with existing tags: skip existing tag, replace it or raise error
+4. Choose what tags have to be copied
+5. Select classes: tags are assigned to all objects of selected classes, objects of ther classes will be copied without changes
+6. Ouptut section: after you press `Run` button, progress will appear. Then result project will be displayed.
+7. App shuts down automatically
 
-
+<img src="https://i.imgur.com/jBVHcxj.png"/>
