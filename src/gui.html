@@ -1,70 +1,40 @@
 <div>
-    <el-row :gutter="10" type="flex">
-        <el-col :span="12">
-            <sly-card title="Input">
-                <sly-field title="" description="Project">
-                    <a slot="title" target="_blank"
-                       :href="`/projects/${data.projectId}/datasets`">{{data.projectName}}</a>
-                    <sly-icon slot="icon" :options="{ imageUrl: `${data.projectPreviewUrl}` }"/>
-                </sly-field>
-            </sly-card>
-        </el-col>
-        <el-col :span="16" style="flex: 1">
-            <sly-card title="Output" style="height: 100%">
-                <sly-field v-if="data.progress === 100" title=""
-                           description="New project has been successfully created">
-                    <a slot="title" target="_blank" :href="`/projects/${data.resultProjectId}/datasets`">{{data.resultProject}}</a>
-                    <sly-icon slot="icon" :options="{ imageUrl: `${data.resultProjectPreviewUrl}` }"/>
-                </sly-field>
-                <div v-if="data.started === true && data.progress !== 100">
-                    <div>{{data.progressCurrent}} / {{data.progressTotal}}</div>
-                    <el-progress :percentage="data.progress"></el-progress>
-                </div>
-
-                <el-button :disabled="data.finished === true" type="primary"
-                           @click="command('copy_tags')" v-if="data.started === false">
-                    <i class="zmdi zmdi-play" style="margin-right: 5px"></i> Run
-                </el-button>
-            </sly-card>
-        </el-col>
-    </el-row>
-
-    <sly-card style="margin-top: 15px;"
-              title="Choose tags"
-              subtitle="Choose tags that should be copied to objects. Tag is disabled if it is applicable only to
-                           images (such tags can not be copied to objects)">
-        <div style="overflow: scroll; max-height: 300px">
-            <div v-for="(item,index) in data.tags" :key="index">
-                <el-checkbox class="mt5"
-                             v-model="state.tagsSelected[index]"
-                             :disabled="state.tagsDisabled[index]">
-                    <i class="zmdi zmdi-label mr5 ml5" :style="{ color: item.color }"></i> {{item.name}}
-                    <!--                    <span v-if="data.tagsDisabledMessage[index].length > 0">{{data.tagsDisabledMessage[index]}})</span>-->
-                </el-checkbox>
+    <div class="fflex" style="align-items: stretch">
+        <sly-card title="Input" style="width: 50%" class="mr15">
+            <sly-field title="" description="Project">
+                <a slot="title" target="_blank"
+                   :href="`/projects/${data.projectId}/datasets`">{{data.projectName}}</a>
+                <sly-icon slot="icon" :options="{ imageUrl: `${data.projectPreviewUrl}` }"/>
+            </sly-field>
+        </sly-card>
+        <sly-card title="Output" style="width: 50%;">
+            <el-button :disabled="data.finished === true
+                                  || state.tagsSelected.filter(Boolean).length == 0
+                                  || state.classesSelected.filter(Boolean).length == 0"
+                       type="primary"
+                       @click="command('copy_tags')"
+                       class="ml10"
+                       v-if="data.started === false">
+                <i class="zmdi zmdi-play" style="margin-right: 5px"></i> Run
+            </el-button>
+            <div v-if="data.started === true && data.progress !== 100">
+                <div>{{data.progressCurrent}} / {{data.progressTotal}}</div>
+                <el-progress :percentage="data.progress"></el-progress>
             </div>
-        </div>
-    </sly-card>
+            <sly-field v-if="data.progress === 100" title=""
+                       description="New project has been successfully created">
+                <a slot="title" target="_blank" :href="`/projects/${data.resultProjectId}/datasets`">{{data.resultProject}}</a>
+                <sly-icon slot="icon" :options="{ imageUrl: `${data.resultProjectPreviewUrl}` }"/>
+            </sly-field>
+        </sly-card>
+    </div>
 
     <sly-card style="margin-top: 15px;"
-              title="Choose classes"
-              subtitle="Assign tags to objects of selected classes">
-        <div style="overflow: scroll; max-height: 300px">
-            <div v-for="(item,index) in data.classes" :key="index">
-                <el-checkbox class="mt5"
-                             v-model="state.classesSelected[index]">
-                    <i class="zmdi zmdi-circle mr5 ml5" :style="{color: item.color}"></i>{{item.title}}
-                    <span style="color: #5a6772;" class="ml15"><i class="zmdi zmdi-shape mr5"></i>{{item.shape}}</span>
-                </el-checkbox>
-            </div>
-        </div>
-    </sly-card>
-
-    <sly-card style="margin-top: 15px;"
-              title="Choose classes"
-              subtitle="Assign tags to objects of selected classes">
+              title="Settings"
+              subtitle="choose the result project name and how tags conflicts have to be resolved">
         <sly-field v-if="data.started === false" title="Result project name"
                    description="New project is created, if you want to avoid duplicates, remove original
-                                        project after app finishes">
+                                    project after app finishes">
             <sly-icon slot="icon" :options="{ color: '#ceadff', bgColor: '#f6ebff', rounded: false }">
                 <i class="zmdi zmdi-collection-folder-image"></i>
             </sly-icon>
@@ -73,6 +43,47 @@
                       v-model="state.resultProjectName"
             ></el-input>
         </sly-field>
+        <sly-field title="Resolve conflicts" description="Choose how to handle case if object already has same tags">
+            <sly-icon slot="icon" :options="{ color: '#ea9d22', bgColor: '#fcefd9', rounded: false }">
+                <i class="zmdi zmdi-alert-triangle"></i>
+            </sly-icon>
+            <el-select v-model="state.resolve" placeholder="Select">
+                <el-option key="skip" label="skip" value="skip"></el-option>
+                <el-option key="replace" label="replace" value="replace"></el-option>
+                <el-option key="raise error" label="raise error" value="raise error"></el-option>
+            </el-select>
+        </sly-field>
     </sly-card>
 
+    <div class="fflex mt15" style="align-items: stretch">
+        <sly-card style="width:50%; margin-right: 15px;"
+                  title="Choose tags"
+                  subtitle="Choose tags that should be copied to objects. Tag is disabled if it is applicable only to
+                               images (such tags can not be copied to objects)">
+            <div style="overflow: scroll; max-height: 300px">
+                <div v-for="(item,index) in data.tags" :key="index">
+                    <el-checkbox class="mt5"
+                                 v-model="state.tagsSelected[index]"
+                                 :disabled="state.tagsDisabled[index]">
+                        <i class="zmdi zmdi-label mr5 ml5" :style="{ color: item.color }"></i> {{item.name}}
+                        <!--                    <span v-if="data.tagsDisabledMessage[index].length > 0">{{data.tagsDisabledMessage[index]}})</span>-->
+                    </el-checkbox>
+                </div>
+            </div>
+        </sly-card>
+        <sly-card style="width: 50%;"
+                  title="Choose classes"
+                  subtitle="Assign tags to objects of selected classes">
+            <div style="overflow: scroll; max-height: 300px">
+                <div v-for="(item,index) in data.classes" :key="index">
+                    <el-checkbox class="mt5"
+                                 v-model="state.classesSelected[index]">
+                        <i class="zmdi zmdi-circle mr5 ml5" :style="{color: item.color}"></i>{{item.title}}
+                        <span style="color: #5a6772;" class="ml15"><i
+                                class="zmdi zmdi-shape mr5"></i>{{item.shape}}</span>
+                    </el-checkbox>
+                </div>
+            </div>
+        </sly-card>
+    </div>
 </div>
