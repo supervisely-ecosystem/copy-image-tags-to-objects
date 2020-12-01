@@ -77,7 +77,8 @@
             <div style="overflow: scroll; max-height: 300px">
                 <div v-for="(item,index) in data.classes" :key="index">
                     <el-checkbox class="mt5"
-                                 v-model="state.classesSelected[index]">
+                                 v-model="state.classesSelected[index]"
+                                 :disabled="state.classesDisabled[index]">
                         <i class="zmdi zmdi-circle mr5 ml5" :style="{color: item.color}"></i>{{item.title}}
                         <span style="color: #5a6772;" class="ml15"><i
                                 class="zmdi zmdi-shape mr5"></i>{{item.shape}}</span>

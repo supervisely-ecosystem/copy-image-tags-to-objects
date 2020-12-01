@@ -48,8 +48,8 @@ def copy_tags(api: sly.Api, task_id, context, state, app_logger):
     selected_classes = state["classesSelected"].copy()
 
     fields = [
-        {"field": "state.tagsSelected", "payload": [False] * len(selected_tags)},
-        {"field": "data.classesSelected", "payload": [False] * len(selected_classes)},
+        {"field": "state.tagsDisabled", "payload": [True] * len(selected_tags)},
+        {"field": "state.classesDisabled", "payload": [True] * len(selected_classes)},
         {"field": "data.started", "payload": True}
     ]
     api.task.set_fields(task_id, fields)
@@ -153,7 +153,7 @@ def prepare_ui_classes():
         obj_class: sly.ObjClass
         UI_CLASSES.append(obj_class.to_json())
         classes_selected.append(True)
-    return UI_CLASSES, classes_selected
+    return UI_CLASSES, classes_selected, [False] * len(classes_selected)
 
 
 def main():
@@ -166,7 +166,7 @@ def main():
     res_project_name = PROJECT.name + " (objects with tags)"
 
     _, tags_selected, tags_disabled, disabled_message = prepare_ui_tags()
-    _, classes_selected = prepare_ui_classes()
+    _, classes_selected, classes_disabled = prepare_ui_classes()
 
     data = {
         "projectId": PROJECT.id,
@@ -188,6 +188,7 @@ def main():
         "tagsSelected": tags_selected,
         "tagsDisabled": tags_disabled,
         "classesSelected": classes_selected,
+        "classesDisabled": classes_disabled,
         "resultProjectName": res_project_name,
         "resolve": "skip"
     }
