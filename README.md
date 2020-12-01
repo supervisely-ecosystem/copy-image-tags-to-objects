@@ -22,7 +22,7 @@
 
 This app copies selected tags to objects of selected classes (by default all classes and tags are selected). New project is created. 
 
-1. Inpur project info
+1. Input project info
 2. Define the name of result project
 3. Choose how to resolve conflicts with existing tags: skip existing tag, replace it or raise error
 4. Choose what tags have to be copied
