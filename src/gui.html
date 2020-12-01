@@ -38,11 +38,41 @@
                 <el-checkbox class="mt5"
                              v-model="state.tagsSelected[index]"
                              :disabled="state.tagsDisabled[index]">
-                    <i class="zmdi zmdi-tag mr5" :style="{ color: item.color }"></i> {{item.name}}
-                    <span v-if="item.applicable_type !== 'all'">(applicable to {{item.applicable_type}})</span>
+                    <i class="zmdi zmdi-label mr5 ml5" :style="{ color: item.color }"></i> {{item.name}}
+                    <!--                    <span v-if="data.tagsDisabledMessage[index].length > 0">{{data.tagsDisabledMessage[index]}})</span>-->
                 </el-checkbox>
             </div>
         </div>
+    </sly-card>
+
+    <sly-card style="margin-top: 15px;"
+              title="Choose classes"
+              subtitle="Assign tags to objects of selected classes">
+        <div style="overflow: scroll; max-height: 300px">
+            <div v-for="(item,index) in data.classes" :key="index">
+                <el-checkbox class="mt5"
+                             v-model="state.classesSelected[index]">
+                    <i class="zmdi zmdi-circle mr5 ml5" :style="{color: item.color}"></i>{{item.title}}
+                    <span style="color: #5a6772;" class="ml15"><i class="zmdi zmdi-shape mr5"></i>{{item.shape}}</span>
+                </el-checkbox>
+            </div>
+        </div>
+    </sly-card>
+
+    <sly-card style="margin-top: 15px;"
+              title="Choose classes"
+              subtitle="Assign tags to objects of selected classes">
+        <sly-field v-if="data.started === false" title="Result project name"
+                   description="New project is created, if you want to avoid duplicates, remove original
+                                        project after app finishes">
+            <sly-icon slot="icon" :options="{ color: '#ceadff', bgColor: '#f6ebff', rounded: false }">
+                <i class="zmdi zmdi-collection-folder-image"></i>
+            </sly-icon>
+            <el-input :disabled="data.finished"
+                      placeholder="Please input project name"
+                      v-model="state.resultProjectName"
+            ></el-input>
+        </sly-field>
     </sly-card>
 
 </div>

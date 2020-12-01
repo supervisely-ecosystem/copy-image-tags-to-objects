@@ -10,6 +10,7 @@ PROJECT_ID = int(os.environ["modal.state.slyProjectId"])
 
 PROJECT = None
 RES_PROJECT = None
+RES_PROJECT_NAME = None
 META: sly.ProjectMeta = None
 
 
@@ -27,17 +28,12 @@ def preprocessing(api: sly.Api, task_id, context, state, app_logger):
     sly.logger.info("do something here")
 
 
-def main():
-    global PROJECT, META
-
-    api = sly.Api.from_env()
-    PROJECT = api.project.get_info_by_id(PROJECT_ID)
-    META = sly.ProjectMeta.from_json(api.project.get_meta(PROJECT_ID))
-
+def prepare_ui_tags():
     tags = []
     tags_selected = []
     tags_disabled = []
     disabled_message = []
+
     for tag_meta in META.tag_metas:
         tag_meta: sly.TagMeta
         cur_json = tag_meta.to_json()
@@ -49,23 +45,55 @@ def main():
         elif tag_meta.applicable_to == TagApplicableTo.IMAGES_ONLY:
             tags_selected.append(False)
             tags_disabled.append(True)
+            disabled_message.append("applicable only to images")
         elif tag_meta.applicable_to == TagApplicableTo.OBJECTS_ONLY:
             tags_selected.append(False)
             tags_disabled.append(True)
+            disabled_message.append("applicable only to objects")
+    return tags, tags_selected, tags_disabled, disabled_message
+
+
+def prepare_ui_classes():
+    classes = []
+    classes_selected = []
+    for obj_class in META.obj_classes:
+        obj_class: sly.ObjClass
+        classes.append(obj_class.to_json())
+        classes_selected.append(True)
+    return classes, classes_selected
+
+
+def main():
+    global PROJECT, META, RES_PROJECT_NAME
+
+    api = sly.Api.from_env()
+    PROJECT = api.project.get_info_by_id(PROJECT_ID)
+    META = sly.ProjectMeta.from_json(api.project.get_meta(PROJECT_ID))
+
+    RES_PROJECT_NAME = PROJECT.name + " (objects with tags)"
+
+    tags, tags_selected, tags_disabled, disabled_message = prepare_ui_tags()
+    classes, classes_selected = prepare_ui_classes()
 
     data = {
         "projectId": PROJECT.id,
         "projectName": PROJECT.name,
         "projectPreviewUrl": api.image.preview_url(PROJECT.reference_image_url, 100, 100),
         "tags": tags,
-        "classes": [],
+        "tagsDisabledMessage": disabled_message,
+        "classes": classes,
         "resultProjectId": "",
         "resultProjectPreviewUrl": "",
+        "started": False,
+        "finished": False,
+        "progress": 0
     }
 
     state = {
         "tagsSelected": tags_selected,
         "tagsDisabled": tags_disabled,
+        "classesSelected": classes_selected,
+        "resultProjectName": RES_PROJECT_NAME,
     }
 
     # Run application service
