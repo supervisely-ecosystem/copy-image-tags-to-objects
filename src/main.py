@@ -89,7 +89,13 @@ def copy_tags(api: sly.Api, task_id, context, state, app_logger):
                         new_labels.append(label.clone())
                     else:
                         new_labels.append(add_tags_to_label(label, allowed_tags, ann.img_tags, state["resolve"]))
-                res_anns.append(ann.clone(labels=new_labels))
+
+                if state["imageTagAction"] == "keep":
+                    res_anns.append(ann.clone(labels=new_labels))
+                elif state["imageTagAction"] == "remove":
+                    res_anns.append(ann.clone(img_tags=sly.TagCollection(), labels=new_labels))
+                else:
+                    raise ValueError(f"Unknown imageTagAction: {state['imageTagAction']}")
 
             res_image_infos = api.image.upload_ids(res_dataset.id, image_names, image_ids, metas=image_metas)
             res_image_ids = [image_info.id for image_info in res_image_infos]
@@ -190,7 +196,8 @@ def main():
         "classesSelected": classes_selected,
         "classesDisabled": classes_disabled,
         "resultProjectName": res_project_name,
-        "resolve": "skip"
+        "resolve": "skip",
+        "imageTagAction": "keep",
     }
 
     # Run application service

@@ -35,7 +35,7 @@
         <sly-field title="Result project name"
                    description="New project is created, if you want to avoid duplicates, remove original
                                     project after app finishes">
-            <sly-icon slot="icon" :options="{ color: '#ceadff', bgColor: '#f6ebff', rounded: false }">
+            <sly-icon slot="icon" :options="{ color: '#a060ff', bgColor: '#f6ebff', rounded: false }">
                 <i class="zmdi zmdi-collection-folder-image"></i>
             </sly-icon>
             <el-input :disabled="data.started"
@@ -51,6 +51,15 @@
                 <el-option key="skip" label="skip" value="skip"></el-option>
                 <el-option key="replace" label="replace" value="replace"></el-option>
                 <el-option key="raise error" label="raise error" value="raise error"></el-option>
+            </el-select>
+        </sly-field>
+        <sly-field title="Image tags" description="Choose what to do with original image tags">
+            <sly-icon slot="icon" :options="{ color: '#ea9d22', bgColor: '#fcefd9', rounded: false }">
+                <i class="zmdi zmdi-label"></i>
+            </sly-icon>
+            <el-select v-model="state.imageTagAction" :disabled="data.started" placeholder="Select">
+                <el-option key="keep" label="keep" value="keep"></el-option>
+                <el-option key="remove" label="remove" value="remove"></el-option>
             </el-select>
         </sly-field>
     </sly-card>
