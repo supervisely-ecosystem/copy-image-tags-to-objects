@@ -13,6 +13,9 @@
   "icon_background": "#FFFFFF",
   "disable_stop": true,
   "context_menu": {
-    "target": ["images_project"]
-  }
+    "target": [
+      "images_project"
+    ]
+  },
+  "poster": "https://i.imgur.com/fAO66c3.png"
 }
