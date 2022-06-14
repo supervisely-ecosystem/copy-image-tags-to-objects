@@ -1,8 +1,9 @@
 import os
-import supervisely_lib as sly
-from supervisely_lib.annotation.tag_meta import TagApplicableTo
+import supervisely as sly
+from supervisely.annotation.tag_meta import TagApplicableTo
+from supervisely.app.v1.app_service import AppService
 
-my_app = sly.AppService()
+my_app: AppService = AppService()
 
 TEAM_ID = int(os.environ['context.teamId'])
 WORKSPACE_ID = int(os.environ['context.workspaceId'])
