@@ -12,8 +12,8 @@
 [![](https://img.shields.io/badge/supervisely-ecosystem-brightgreen)](https://ecosystem.supervise.ly/apps/copy-image-tags-to-objects)
 [![](https://img.shields.io/badge/slack-chat-green.svg?logo=slack)](https://supervise.ly/slack)
 ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/supervisely-ecosystem/copy-image-tags-to-objects)
-[![views](https://app.supervise.ly/img/badges/views/supervisely-ecosystem/copy-image-tags-to-objects)](https://supervise.ly)
-[![runs](https://app.supervise.ly/img/badges/runs/supervisely-ecosystem/copy-image-tags-to-objects)](https://supervise.ly)
+[![views](https://app.supervise.ly/img/badges/views/supervisely-ecosystem/copy-image-tags-to-objects.png)](https://supervise.ly)
+[![runs](https://app.supervise.ly/img/badges/runs/supervisely-ecosystem/copy-image-tags-to-objects.png)](https://supervise.ly)
 
 </div>
 
