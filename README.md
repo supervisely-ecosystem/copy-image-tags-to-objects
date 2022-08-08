@@ -1,5 +1,5 @@
 <div align="center" markdown>
-<img src="https://i.imgur.com/fAO66c3.png"/>
+<img src="https://user-images.githubusercontent.com/106374579/183398752-8e83aaef-607c-4755-baa1-749f6c617d49.png"/>
 
 # Copy Image Tags To Objects
 
