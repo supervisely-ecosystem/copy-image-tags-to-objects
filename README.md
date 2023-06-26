@@ -29,7 +29,7 @@ This app copies selected tags to objects of selected classes (by default all cla
 6. Output section: after you press `Run` button, progress will appear. Then result project will be displayed.
 7. App shuts down automatically
 
-<img src="https://i.imgur.com/jBVHcxj.png"/>
+<img src="media/overview.png"/>
 
 ## How To Run
 
