@@ -12,7 +12,7 @@
   "main_script": "src/main.py",
   "gui_template": "src/gui.html",
   "task_location": "workspace_tasks",
-  "icon": "https://i.imgur.com/bi0gqDJ.png",
+  "icon": "media/icon.png",
   "icon_background": "#FFFFFF",
   "disable_stop": true,
   "context_menu": {
