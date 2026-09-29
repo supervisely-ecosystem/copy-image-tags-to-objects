@@ -7,8 +7,8 @@
     "data operations"
   ],
   "description": "Tags and object classes can be customized",
-  "docker_image": "supervisely/base-py-sdk:6.73.564",
-  "instance_version": "6.15.60",
+  "docker_image": "supervisely/base-py-sdk:6.74.34",
+  "instance_version": "6.17.22",
   "main_script": "src/main.py",
   "gui_template": "src/gui.html",
   "task_location": "workspace_tasks",
